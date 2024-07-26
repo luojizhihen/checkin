@@ -1,4 +1,4 @@
-const https = require('https');
+import https from 'https';
 
 const getEnvVariable = (name) => {
     const value = process.env[name];

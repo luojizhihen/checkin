@@ -82,8 +82,7 @@ const sendNotification = async (token, contents) => {
         }, JSON.stringify({
             token,
             title: contents[0],
-            content: contents.join('
-'),
+            content: contents.join(''),
             template: 'markdown',
         }));
     } catch (error) {

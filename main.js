@@ -33,7 +33,9 @@ const httpsRequest = (url, options, timeout = 8000) => {
             reject(new Error('请求超时'));
         });
 
-        req.setTimeout(timeout);
+        if (typeof timeout === 'number') {
+            req.setTimeout(timeout);
+        }
         req.end();
     });
 };
@@ -74,20 +76,16 @@ const gladosCheckin = async (cookie) => {
 
 const sendNotification = async (token, contents) => {
     if (!token || !contents) return;
-    try {
-        await httpsRequest('https://www.pushplus.plus/send', {
-            method: 'POST',
-            headers: { 'content-type': 'application/json' },
-            timeout: 15000, // 超时时间设置为15秒
-        }, JSON.stringify({
+    await httpsRequest('https://www.pushplus.plus/send', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
             token,
             title: contents[0],
-            content: contents.join(''),
+            content: contents.join` `,
             template: 'markdown',
-        }));
-    } catch (error) {
-        console.error('通知发送失败:', error);
-    }
+        }),
+    }, 8000);  // 将超时时间作为单独的参数传入
 };
 
 const main = async () => {

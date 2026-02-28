@@ -1,7 +1,7 @@
-const TIMEOUT_MS = 15000
-
 const fetchWithTimeout = (url, options = {}) => {
-  return fetch(url, { ...options, signal: AbortSignal.timeout(TIMEOUT_MS) })
+  const controller = new AbortController()
+  const timer = setTimeout(() => controller.abort(), 15000)
+  return fetch(url, { ...options, signal: controller.signal }).finally(() => clearTimeout(timer))
 }
 
 const parseResponse = async (resp, label) => {
@@ -109,11 +109,11 @@ const main = async () => {
   const result = await glados()
   await notify(result)
   if (result?.some((line) => line === 'Checkin Error')) {
-    process.exit(1)
+    process.exitCode = 1
   }
 }
 
 main().catch((e) => {
   console.error(e)
-  process.exit(1)
+  process.exitCode = 1
 })

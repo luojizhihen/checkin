@@ -1,6 +1,9 @@
 const glados = async () => {
   const notice = []
-  if (!process.env.GLADOS) return
+  if (!process.env.GLADOS) {
+    console.log('[DEBUG] GLADOS env not set, skipping.')
+    return
+  }
   for (const cookie of String(process.env.GLADOS).split('\n')) {
     if (!cookie) continue
     try {
@@ -9,11 +12,16 @@ const glados = async () => {
         'referer': 'https://glados.cloud/console/checkin',
         'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
       }
-      const action = await fetch('https://glados.cloud/api/user/checkin', {
+      console.log('[DEBUG] Sending checkin request...')
+      const checkinResp = await fetch('https://glados.cloud/api/user/checkin', {
         method: 'POST',
         headers: { ...common, 'content-type': 'application/json' },
         body: '{"token":"glados.cloud"}',
-      }).then((r) => r.json())
+      })
+      console.log('[DEBUG] Checkin response status:', checkinResp.status, checkinResp.statusText)
+      const checkinText = await checkinResp.text()
+      console.log('[DEBUG] Checkin response body:', checkinText.substring(0, 500))
+      const action = JSON.parse(checkinText)
       if (action?.code) throw new Error(action?.message)
       const status = await fetch('https://glados.cloud/api/user/status', {
         method: 'GET',
@@ -26,6 +34,7 @@ const glados = async () => {
         `Left Days ${Number(status?.data?.leftDays)}`
       )
     } catch (error) {
+      console.log('[DEBUG] Checkin failed with error:', error)
       notice.push(
         'Checkin Error',
         `${error}`,
@@ -101,7 +110,11 @@ const notify = async (notice) => {
 }
 
 const main = async () => {
-  await notify(await glados())
+  console.log('[DEBUG] Script started at', new Date().toISOString())
+  const result = await glados()
+  console.log('[DEBUG] Checkin result:', result)
+  await notify(result)
+  console.log('[DEBUG] Script finished.')
 }
 
-main()
+main().catch((e) => console.error('[FATAL]', e))

@@ -7,7 +7,7 @@ const glados = async () => {
       const common = {
         'cookie': cookie,
         'referer': 'https://glados.cloud/console/checkin',
-        'user-agent': 'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 6.0)',
+        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
       }
       const action = await fetch('https://glados.cloud/api/user/checkin', {
         method: 'POST',
@@ -77,7 +77,7 @@ const notify = async (notice) => {
           body: JSON.stringify({
             msgtype: 'markdown',
             markdown: {
-                content: notice.join('<br>')
+              content: notice.join('<br>')
             }
           }),
         })
